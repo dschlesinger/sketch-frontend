@@ -5,10 +5,10 @@
 
     import { joinGameServer } from "$lib/calls/joinGame";
     import { joinGame } from "$lib/supabase/games.svelte";
-    import { redirect } from "@sveltejs/kit";
-    import { toast } from "@zerodevx/svelte-toast";
+    import { goto } from "$app/navigation";
     import Label from "../ui/label/label.svelte";
     import { Clipboard } from '@lucide/svelte';
+    import { toast } from "@zerodevx/svelte-toast";
 
     let {
         open = $bindable(false),
@@ -39,12 +39,12 @@
                         // Update supabase
                         joinGame(game.name, game.game_id, f.faction_id)
 
-                        // const params = new URLSearchParams({ 
-                        //     game_id: var1, 
-                        //     var2: var2 
-                        // });
+                        const params = new URLSearchParams({ 
+                            game_id: game.game_id, 
+                            faction_id: f.faction_id 
+                        });
                         
-                        // throw redirect(308, '/play')
+                        goto(`/play?${params.toString()}`)
 
                     }
                     else {
