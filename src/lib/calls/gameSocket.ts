@@ -3,7 +3,9 @@ export function attachGame(state: { messages: string[] }, game_id: string, facti
 
     // Construct query params
     const params = new URLSearchParams({ game_id, faction_id });
-    const evtSource = new EventSource(`/api/attach-game?${params.toString()}`);
+    const u = `/api/attach-game?${params.toString()}`;
+    // console.log(u)
+    const evtSource = new EventSource(u);
 
     evtSource.onmessage = (event) => {
         state.messages.push(event.data);
@@ -17,11 +19,11 @@ export function attachGame(state: { messages: string[] }, game_id: string, facti
     return evtSource; // Return it in case caller wants to close it later
 }
 
-export async function sendUpdate(message: string) {
+export async function sendUpdate(type: string, message: any) {
     const res = await fetch('/api/attach-game', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ type, message: message })
     });
 
     if (!res.ok) {

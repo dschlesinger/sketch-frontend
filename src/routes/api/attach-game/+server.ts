@@ -10,7 +10,9 @@ function connectBackend(game_id: string, faction_id: string) {
         faction_id: faction_id
     })
 
-    ws = new WebSocket(`ws://localhost:8000/ws/attach-game?${params.toString()}`);
+    const u = `ws://localhost:8000/ws/attach-game?${params.toString()}`;
+
+    ws = new WebSocket(u);
 
     ws.on('open', () => console.log('Connected to backend WS'));
     ws.on('close', () => {
@@ -29,6 +31,8 @@ export const GET: RequestHandler = async ({ url }) => {
     if (!game_id || !faction_id) {
         throw Error('Game ID or Faction ID was not given')
     }
+
+    // console.log('server route', game_id, faction_id)
 
 	const headers = new Headers({
 		'Content-Type': 'text/event-stream',
@@ -69,10 +73,15 @@ export const GET: RequestHandler = async ({ url }) => {
 
 // POST handler: receive client message and send to backend WebSocket
 export const POST: RequestHandler = async ({ request }) => {
-	const { message } = await request.json();
+	const { type, message } = await request.json();
+
+    console.log(type, message)
 
 	if (ws.readyState === WebSocket.OPEN) {
-		ws.send(message);
+		ws.send(JSON.stringify({
+            route: type,
+            message: message
+        }));
 		return new Response(JSON.stringify({ success: true }));
 	} else {
 		return new Response(JSON.stringify({ success: false, error: 'WS not connected' }), { status: 500 });

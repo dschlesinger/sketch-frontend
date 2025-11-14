@@ -2,6 +2,8 @@
 
     import { onMount } from "svelte";
     import { attachGame, sendUpdate } from "$lib/calls/gameSocket";
+    import { getGameInfo } from "$lib/calls/gameInfo.js";
+    import Button from "$lib/components/ui/button/button.svelte";
 
     let {
         data
@@ -10,9 +12,28 @@
     let updates = $state({ messages: [] })
 
     onMount(async () => {
+
+        let gameState = $state(
+            await getGameInfo(data.game_id)
+        )
+
+        console.log($state.snapshot(gameState))
+
+        console.log(data.faction_id, data.game_id)
+
         attachGame(updates, data.game_id, data.faction_id)
     })
 
 </script>
 
 {data.game_id}{data.faction_id}
+
+<Button
+    onclick={
+        async () => {
+            await sendUpdate('endturn', {endturn: true})
+        }
+    }
+>
+    Test Update
+</Button>

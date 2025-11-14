@@ -5,6 +5,7 @@
     import Separator from "$lib/components/ui/separator/separator.svelte";
     import { joinGame, available_games, getGames } from "$lib/supabase/games.svelte";
     import { getGameInfo } from '$lib/calls/gameInfo'
+    import { onMount } from "svelte";
     import JoinGameButton from "$lib/components/custom/joinGameButton.svelte";
 
     let sorted_game = $derived(available_games.current.toSorted((a, b) => (new Date(b.time_joined)).getTime() - new Date(a.time_joined).getTime()))
@@ -13,7 +14,9 @@
 
     let game_id = $state('')
 
-    getGames()
+    onMount(async () => {
+        getGames()
+    })
 
 </script>
 
