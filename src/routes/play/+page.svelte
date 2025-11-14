@@ -4,6 +4,7 @@
     import { attachGame, sendUpdate } from "$lib/calls/gameSocket";
     import { getGameInfo } from "$lib/calls/gameInfo.js";
     import Button from "$lib/components/ui/button/button.svelte";
+    import AdvisorChat from "$lib/components/custom/advisorChat.svelte";
 
     let {
         data
@@ -26,7 +27,18 @@
 
 </script>
 
-{data.game_id}{data.faction_id}
+<div class='w-full h-full flex flex-col md:flex-row'>
+
+    <div class='h-full grow bg-cyan-400'>
+        <!-- Map -->
+
+    </div>
+
+    <AdvisorChat />
+
+</div>
+
+<!-- {data.game_id}{data.faction_id}
 
 <Button
     onclick={
@@ -36,4 +48,4 @@
     }
 >
     Test Update
-</Button>
+</Button> -->
