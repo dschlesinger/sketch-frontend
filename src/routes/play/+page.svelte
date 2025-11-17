@@ -7,6 +7,7 @@
     import { getGameInfo } from "$lib/calls/gameInfo.js";
     import { getFactionID } from "$lib/supabase/getFactionID.js";
     import JoinGameModal from "$lib/components/custom/joinGameModal.svelte";
+    import Map from "$lib/components/custom/map.svelte";
     import Button from "$lib/components/ui/button/button.svelte";
     import AdvisorChat from "$lib/components/custom/advisorChat.svelte";
 
@@ -59,9 +60,9 @@
 
 <div class='w-full h-full flex flex-col lg:flex-row'>
 
-    <div class='h-full grow bg-cyan-400'>
+    <div class='h-full flex grow bg-slate-600 justify-center items-center'>
         <!-- Map -->
-
+        <Map game={gameState} />
     </div>
 
     <AdvisorChat game_id={data.game_id} faction_id={faction_id} />
