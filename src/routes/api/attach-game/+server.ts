@@ -82,8 +82,14 @@ export const POST: RequestHandler = async ({ request }) => {
             route: type,
             message: message
         }));
+
+        console.log('sent', type, message)
+
 		return new Response(JSON.stringify({ success: true }));
 	} else {
+
+        console.log('not sent')
+
 		return new Response(JSON.stringify({ success: false, error: 'WS not connected' }), { status: 500 });
 	}
 };

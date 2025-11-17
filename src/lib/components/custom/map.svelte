@@ -18,7 +18,8 @@
     import Label from "../ui/label/label.svelte";
 
     let {
-        game
+        game,
+        sendUpdate
     } = $props()
 
     let faction_order = $derived(game?.factions?.map((f) => f.faction_id))
@@ -50,21 +51,21 @@
 <!-- As game is initialy null -->
 {#if game}
 
-<Fullscreen on:change={() => {fullscreen = !fullscreen}} let:onRequest let:onExit>
+<Fullscreen on:change={() => {fullscreen = !fullscreen; width = 0; height = 0}} let:onRequest let:onExit>
     <div
-        bind:clientWidth={width}
-        bind:clientHeight={height}
-        class='w-9/10 h-7/10 md:w-7/10 md:h-4/5 flex flex-col md:flex-row gap-2'
+        class={`${fullscreen ? 'w-full h-full' : 'bg-slate-600 w-9/10 h-9/10 md:w-7/10 md:h-4/5'} flex flex-col md:flex-row gap-2`}
     >
         <div
-            class='w-full h-full flex items-center justify-center'
+            bind:clientWidth={width}
+            bind:clientHeight={height}
+            class='grow flex items-center justify-center'
         >
 
 
             <svg
             width={width - 20}
             height={height - 20}
-            class=""
+            class="grow"
         >
 
             <!-- 1. PROVINCES -->
@@ -202,6 +203,7 @@
             >
             <Checkbox bind:checked={map_config.army} />
                 <Label
+                    class={`${fullscreen ? 'text-white' : ''}`}
                 >
                     <Sword 
                         class='bg-white/50 rounded p-0.5'
@@ -215,7 +217,9 @@
                 class='flex gap-x-1'
             >
                 <Checkbox bind:checked={map_config.city} />
-                <Label>
+                <Label
+                    class={`${fullscreen ? 'text-white' : ''}`}
+                >
                     <Triangle 
                         class='bg-white/50 rounded p-0.5 fill-black'
                         size={14} 
@@ -227,7 +231,9 @@
                 class='flex gap-x-1'
             >
                 <Checkbox bind:checked={map_config.fort} />
-                <Label>
+                <Label
+                    class={`${fullscreen ? 'text-white' : ''}`}
+                >
                     <Castle
                         class='bg-white/50 rounded p-0.5'
                         size={14}
@@ -240,7 +246,9 @@
                 class='flex gap-x-1'
             >
                 <Checkbox bind:checked={map_config.port} />
-                <Label>
+                <Label
+                    class={`${fullscreen ? 'text-white' : ''}`}
+                >
                     <Waves
                         size={14}
                         class='stroke-blue-800 bg-white/50 rounded p-0.5'
@@ -252,7 +260,9 @@
                 class='flex gap-x-1'
             >
                 <Checkbox bind:checked={map_config.fullscreen} />
-                <Label>
+                <Label
+                    class={`${fullscreen ? 'text-white' : ''}`}
+                >
                     <FS
                         size={14}
                         class=' bg-white/50 rounded p-0.5'
@@ -260,7 +270,14 @@
                     Fullscreen
                 </Label>
             </div>
-
+            <Button
+                class='bg-green-600'
+                onclick={() => {
+                    sendUpdate('endturn', {})
+                }}
+            >
+                End Turn
+            </Button>
 
         </div>
     </div>

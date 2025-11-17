@@ -62,7 +62,7 @@
 
     <div class='h-full flex grow bg-slate-600 justify-center items-center'>
         <!-- Map -->
-        <Map game={gameState} />
+        <Map game={gameState} {sendUpdate} />
     </div>
 
     <AdvisorChat game_id={data.game_id} faction_id={faction_id} />

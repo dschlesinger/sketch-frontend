@@ -23,7 +23,7 @@ export async function sendUpdate(type: string, message: any) {
     const res = await fetch('/api/attach-game', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message: message })
+        body: JSON.stringify({ type: type, message: message })
     });
 
     if (!res.ok) {
