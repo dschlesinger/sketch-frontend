@@ -4,8 +4,15 @@
     import {
         Crown,
         Triangle,
-        Sword
+        Sword,
+        Castle,
+        Waves,
+        Maximize as FS,
+        X,
     } from '@lucide/svelte'
+
+    import Fullscreen from "svelte-fullscreen";
+    import Button from "../ui/button/button.svelte";
 
     import { Checkbox } from "$lib/components/ui/checkbox/index.js";
     import Label from "../ui/label/label.svelte";
@@ -24,27 +31,42 @@
 
     let width = $state(0)
     let height = $state(0)
+    let fullscreen = $state(false)
+
+    // Toggles for map
+    let map_config = $state({
+        army: true,
+        city: true,
+        port: true,
+        fort: true
+    })
 
 </script>
 
 <!-- As game is initialy null -->
 {#if game}
 
+<Fullscreen on:change={() => {fullscreen = !fullscreen}} let:onRequest let:onExit>
     <div
         bind:clientWidth={width}
         bind:clientHeight={height}
-        class='w-4/5 h-3/5 md:w-3/5 md:h-4/5'
+        class='w-9/10 h-7/10 md:w-7/10 md:h-4/5 flex flex-col md:flex-row'
     >
-        <svg
-            width={width}
-            height={height}
-            class="absolute p-4"
+        <div
+            class='w-full h-full flex items-center justify-center'
+        >
+
+
+            <svg
+            width={width + 20}
+            height={height + 20}
+            class=" p-4"
         >
 
             <!-- 1. PROVINCES -->
             {#each game.provinces as p}
                 <polygon 
-                    points={p.border.map((b) => `${b[0] * width},${b[1] * height}`).join(' ')}
+                    points={p.border.map((b) => `${b[0] * width + 10},${b[1] * height + 10}`).join(' ')}
                     style={`
                         fill:${p.is_ocean ? 'cyan' : getFactionColor(p.faction_id)};
                         stroke-width: 1;
@@ -53,58 +75,166 @@
                 />
             {/each}
 
-            <!-- 2. CITIES -->
-            {#each game.provinces as p}
-                {#if p?.city?.is_capital}
-                    <g transform="translate({p.centriod[0] * width - 8.5}, {p.centriod[1] * height - 8.5})">
-                        <Crown size={17} class="fill-amber-300" />
-                    </g>
-                {:else if p?.city}
-                    <g transform="translate({p.centriod[0] * width - 8.5}, {p.centriod[1] * height - 8.5})">
-                        <Triangle size={17} class="fill-black" />
-                    </g>
-                {/if}
-            {/each}
+            {#if map_config.city}
 
-            <!-- 3. ARMIES (ALWAYS ON TOP) -->
+                <!-- 2. CITIES -->
+                {#each game.provinces as p}
+                    {#if p?.city?.is_capital}
+                        <g transform="translate({p.centriod[0] * width - 8.5 + 10}, {p.centriod[1] * height - 8.5 + 10})">
+                            <Crown size={17} class="fill-amber-300" />
+                        </g>
+                    {:else if p?.city}
+                        <g transform="translate({p.centriod[0] * width - 8.5 + 10}, {p.centriod[1] * height - 8.5 + 10})">
+                            <Triangle size={17} class="fill-black" />
+                        </g>
+                    {/if}
+                {/each}
+            {/if}
+
+            <!-- 3. ARMIES, Forts, and Ports (ALWAYS ON TOP) -->
             {#each game.provinces as p}
-                <foreignObject 
-                    x={p.centriod[0] * width}
-                    y={p.centriod[1] * height}
-                    width="200"
-                    height="200"
-                >
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="flex flex-col">
-                        {#each p.army as a}
-                            <div class="flex items-center bg-white/20 rounded-md w-fit p-1">
-                                <div
-                                 class='bg-white rounded-full w-1 aspect-square self-start'
-                                >
+                
+                {#if map_config.army}
+                    <foreignObject 
+                        x={p.centriod[0] * width + 10}
+                        y={p.centriod[1] * height + 10}
+                        width="200"
+                        height="200"
+                    >
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="flex flex-col">
+                            {#each p.army as a}
+                                <div class="flex items-center bg-white/20 rounded-md w-fit p-1">
+                                    <div
+                                    class='bg-white rounded-full w-1 aspect-square self-start'
+                                    >
+                                    </div>
+                                    <Sword 
+                                        size={15}
+                                        fill={getFactionColor(a.faction_id)}
+                                    />
+                                    <small>
+                                        {a.numbers}
+                                    </small>
                                 </div>
-                                <Sword 
-                                    size={15}
-                                    fill={getFactionColor(a.faction_id)}
+                            {/each}
+                        </div>
+                    </foreignObject>
+                {/if}
+                {#if map_config.fort && p.fort}
+                    <foreignObject 
+                        x={p.centriod[0] * width - 20 + 10}
+                        y={p.centriod[1] * height - 15 + 10}
+                        width="200"
+                        height="200"
+                    >
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="">
+                            <div class="">
+                                <Castle
+                                    size={14}
+                                    fill='black'
                                 />
-                                <small>
-                                    {a.numbers}
-                                </small>
                             </div>
-                        {/each}
-                    </div>
-                </foreignObject>
+                        </div>
+                    </foreignObject>
+                {/if}
+                {#if map_config.port && p.port}
+                    <foreignObject 
+                        x={p.centriod[0] * width - 20 + 10}
+                        y={p.centriod[1] * height + 10}
+                        width="200"
+                        height="200"
+                    >
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="">
+                            <div class="">
+                                <Waves
+                                    size={14}
+                                    class='stroke-blue-800'
+                                />
+                            </div>
+                        </div>
+                    </foreignObject>
+                {/if}
+                <!-- Full screen -->
+                <foreignObject 
+                        x={0}
+                        y={0}
+                        width="200"
+                        height="200"
+                    >
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="">
+                            {#if !fullscreen}
+                                <Button size='icon' onclick={() => {onRequest()}}><FS size={10} /></Button>
+                            {:else}
+                                <Button size='icon' onclick={() => {onExit()}}><X size={10} /></Button>
+                            {/if}
+                        </div>
+                    </foreignObject>
             {/each}
+                
+            </svg>
+        </div>
+        
+        
+        <!-- Toggles -->
+        <div
+            class='flex md:flex-col justify-center gap-4'
+        >
+            <div
+                class='flex gap-x-1'
+            >
+            <Checkbox bind:checked={map_config.army} />
+                <Label
+                >
+                    <Sword 
+                        class='bg-white/50 rounded p-0.5'
+                        size={14}
+                        fill='black'
+                    />
+                    Armys
+                </Label>
+            </div>
+            <div
+                class='flex gap-x-1'
+            >
+                <Checkbox bind:checked={map_config.city} />
+                <Label>
+                    <Triangle 
+                        class='bg-white/50 rounded p-0.5 fill-black'
+                        size={14} 
+                    />
+                    Citys
+                </Label>
+            </div>
+            <div
+                class='flex gap-x-1'
+            >
+                <Checkbox bind:checked={map_config.fort} />
+                <Label>
+                    <Castle
+                        class='bg-white/50 rounded p-0.5'
+                        size={14}
+                        fill='black'
+                    />
+                    Forts
+                </Label>
+            </div>
+            <div
+                class='flex gap-x-1'
+            >
+                <Checkbox bind:checked={map_config.port} />
+                <Label>
+                    <Waves
+                        size={14}
+                        class='stroke-blue-800 bg-white/50 rounded p-0.5'
+                    />
+                    Ports
+                </Label>
+            </div>
 
-        </svg>
 
+        </div>
     </div>
-
-    <!-- Toggles -->
-     <div
-
-     >
-
-
-
-     </div>
+</Fullscreen>
+    
 
 {/if}
