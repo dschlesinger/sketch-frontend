@@ -44,6 +44,7 @@
         port: true,
         fort: true,
         fullscreen: true,
+        prov_names: true,
     })
 
 </script>
@@ -78,7 +79,7 @@
                         stroke:black;
                     `}
                 />
-                {#if fullscreen}
+                {#if fullscreen && map_config.prov_names}
                     <text
                         x={p.centriod[0] * (width - 20)}
                         y={p.centriod[1] * (height - 20) + 20}
@@ -100,6 +101,17 @@
                         <g transform="translate({p.centriod[0] * (width - 20) - 8.5}, {p.centriod[1] * (height - 20) - 8.5})">
                             <Crown size={17} class="fill-amber-300" />
                         </g>
+                        {#if fullscreen}
+                            <text
+                                x={p.centriod[0] * (width - 20)}
+                                y={p.centriod[1] * (height - 20) + 20}
+                                class={`fill-current text-2xl text-black/90 bg-white/50 rounded p-0.5`}
+                                text-anchor="middle"
+                                dominant-baseline="middle"
+                            >
+                                {game?.factions?.[faction_order.indexOf(p?.faction_id)].name}
+                            </text>
+                        {/if}
                     {:else if p?.city}
                         <g transform="translate({p.centriod[0] * (width - 20) - 8.5}, {p.centriod[1] * (height - 20) - 8.5})">
                             <Triangle size={17} class="fill-black" />
@@ -165,7 +177,7 @@
                             <div class="">
                                 <Waves
                                     size={14}
-                                    class='stroke-blue-800'
+                                    class='stroke-blue-600 bg-white/50 rounded p-0.5'
                                 />
                             </div>
                         </div>
@@ -251,11 +263,23 @@
                 >
                     <Waves
                         size={14}
-                        class='stroke-blue-800 bg-white/50 rounded p-0.5'
+                        class='stroke-blue-600 bg-white/50 rounded p-0.5'
                     />
                     Ports
                 </Label>
             </div>
+            {#if fullscreen}
+                <div
+                    class='flex gap-x-1'
+                >
+                    <Checkbox bind:checked={map_config.prov_names} />
+                    <Label
+                        class='text-white'
+                    >
+                        Province Names
+                    </Label>
+                </div>
+            {/if}
             <div
                 class='flex gap-x-1'
             >

@@ -8,8 +8,14 @@
     import { getFactionID } from "$lib/supabase/getFactionID.js";
     import JoinGameModal from "$lib/components/custom/joinGameModal.svelte";
     import Map from "$lib/components/custom/map.svelte";
-    import Button from "$lib/components/ui/button/button.svelte";
+    import Button, {buttonVariants} from "$lib/components/ui/button/button.svelte";
     import AdvisorChat from "$lib/components/custom/advisorChat.svelte";
+    import { STRATEGY_MAP_COLORS } from "$lib/components/custom/mapColors";
+
+    import {
+        Bot,
+        CircleUserRound 
+    } from '@lucide/svelte';
 
     let {
         data
@@ -30,6 +36,20 @@
     let gameState = $state(
             null
     )
+
+    let faction_order = $derived(gameState?.factions?.map((f) => f.faction_id))
+
+    function getFactionColor(faction_id: string) {
+        console.log(faction_id)
+
+        const color = STRATEGY_MAP_COLORS[
+            faction_order.indexOf(faction_id)
+        ]
+
+        console.log(color)
+
+        return color
+    }
 
     onMount(async () => {
 
@@ -60,7 +80,37 @@
 
 <div class='w-full h-full flex flex-col lg:flex-row'>
 
-    <div class='h-full flex grow bg-slate-600 justify-center items-center'>
+    <div class='h-full flex grow bg-slate-600 justify-center items-center gap-x-4'>
+        <!-- Players -->
+         <div class='bg-slate-800 rounded-md p-4'>
+
+            {#each gameState?.factions as f}
+
+                <div class='flex items-center gap-x-1'>
+
+                    <div 
+                        class='w-2 aspect-square rounded-full'
+                        style={`background-color: ${getFactionColor(f?.faction_id)};`}
+                    >
+                    </div>
+
+                    <div class='text-white'>
+                        {f?.name}
+                    </div>
+
+                    <div>
+                        {#if f?.available}
+                            <Bot class='stroke-white' />
+                        {:else}
+                            <CircleUserRound  class={`${f?.turn_ended ? 'fill-green-600' : 'fill-red-600'}`} />
+                        {/if}
+                    </div>
+
+                </div>
+                
+            {/each}
+            
+        </div>
         <!-- Map -->
         <Map game={gameState} {sendUpdate} />
     </div>
