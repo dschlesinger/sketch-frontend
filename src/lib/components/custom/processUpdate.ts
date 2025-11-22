@@ -44,6 +44,10 @@ export function update_game_state(
                 const army = get_army(game_state.provinces, army_id);
                 if (army) {
                     army.numbers += u.props['numbers'];
+
+                    if (army.numbers < 1) {
+                        remove_army_from_current_province(game_state.provinces, army.army_id)
+                    }
                 }
                 break;
             }

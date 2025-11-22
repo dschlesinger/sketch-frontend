@@ -94,7 +94,7 @@
                     game_id,
                     $state.snapshot(faction_id),
                     // Take only previous 10 messages
-                    messages.toReversed().slice(0, 10),
+                    messages.slice(0, 10).toReversed(),
                     token_stream
                 ).then(() => {
                     messages = [{
