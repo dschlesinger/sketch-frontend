@@ -3,10 +3,17 @@
 
     import { Textarea } from "$lib/components/ui/textarea/index.js";
     import { sendAdvisorMessage } from "$lib/calls/sendAdvisorMessage";
+    import { toast } from "@zerodevx/svelte-toast";
+    import Separator from "../ui/separator/separator.svelte";
 
     let textareaValue = $state('')
 
     let token_stream = $state({current: []})
+
+    interface Message {
+        role: string,
+        message: string
+    }
 
     let messages: Message[] = $state([
         {
@@ -21,7 +28,8 @@
     let show_down_button = $state(false)
     let {
         game_id,
-        faction_id
+        faction_id,
+        selected_faction
     } = $props();
 
 </script>
@@ -29,7 +37,7 @@
 <div class="w-full lg:w-96 h-80 lg:h-full bg-slate-800 flex flex-col">
 
     <header class="p-2 text-lg text-white font-bold text-center flex items-center justify-center gap-x-2">
-        Advisor Chat
+        {selected_faction?.faction_id === faction_id ? 'Your Advisor' : `Ambassador of the ${selected_faction?.name}`}
         {#if show_down_button}
             <Button
                 onclick={() => {
@@ -40,6 +48,8 @@
             </Button>
         {/if}
     </header>
+
+    <Separator />
 
     <!-- Chat scroll area -->
     <div 
@@ -82,10 +92,14 @@
         <Button
             class="w-full bg-blue-500"
             onclick={async () => {
-                messages = [{
-                    role: "player",
-                    message: $state.snapshot(textareaValue),
-                }, ...messages];
+
+                if (!selected_faction) {
+                    toast.push('No faction selected')
+                    return
+                }
+
+                const message = $state.snapshot(textareaValue);
+                const to_faction = $state.snapshot(selected_faction)
 
                 textareaValue = ''
                 streaming_message = true;
@@ -93,12 +107,12 @@
                 await sendAdvisorMessage(
                     game_id,
                     $state.snapshot(faction_id),
-                    // Take only previous 10 messages
-                    messages.slice(0, 10).toReversed(),
+                    to_faction.faction_id,
+                    message,
                     token_stream
                 ).then(() => {
                     messages = [{
-                        role: "advisor",
+                        role: to_faction.faction_id,
                         message: token_stream.current.join(""),
                     }, ...messages];
 

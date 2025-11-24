@@ -12,6 +12,8 @@
     import AdvisorChat from "$lib/components/custom/advisorChat.svelte";
     import { STRATEGY_MAP_COLORS } from "$lib/components/custom/mapColors";
     import { update_game_state } from "$lib/components/custom/processUpdate.js"
+    import { get_faction } from "$lib/components/custom/gameState.js";
+    import { afterNavigate } from "$app/navigation";
 
     import {
         Bot,
@@ -29,6 +31,8 @@
 
     async function handleAttachGame() {
 
+        console.log('Calls handleAttach')
+
         console.log(faction_id, data.game_id)
 
         attachGame(updates, data.game_id, faction_id)
@@ -37,8 +41,10 @@
     let gameState = $state(
             null
     )
+    
+    let selected_faction = $state(undefined);
 
-    let faction_order = $derived(gameState?.factions?.map((f) => f.faction_id))
+    let faction_order = $derived(gameState?.factions?.map((f) => f?.faction_id))
 
     function getFactionColor(faction_id: string) {
         // console.log(faction_id)
@@ -52,7 +58,9 @@
         return color
     }
 
-    onMount(async () => {
+    afterNavigate(async () => {
+
+        console.log('here')
 
         const { data: { session } } = await supabase.auth.getSession();
         
@@ -61,15 +69,19 @@
             return;
         }
 
+        console.log('getting game state')
+
         gameState = await getGameInfo(data.game_id);
 
         // Get faction id
         faction_id = await getFactionID(data.game_id)
 
+        
         if (faction_id === undefined) {
             join_game_model_open = true;
             return
         }
+        selected_faction = get_faction(gameState?.factions, faction_id)
 
         handleAttachGame()
 
@@ -94,11 +106,18 @@
 
     <div class='h-full flex grow bg-slate-600 justify-center items-center gap-x-4'>
         <!-- Players -->
-         <div class='bg-slate-800 rounded-md p-4'>
+         <div class='bg-slate-800 rounded-md p-4 gap-y-1'>
 
             {#each gameState?.factions as f}
 
-                <div class='flex items-center gap-x-1'>
+                <Button class={`flex items-center gap-x-1 ${selected_faction?.faction_id === f?.faction_id ? 'bg-white/40 hover:bg-white/40' : 'hover:bg-cyan-200/40'}`}
+                    onclick={
+                        () => {
+                            selected_faction = get_faction(gameState?.factions, f?.faction_id);
+                            console.log($state.snapshot(selected_faction))
+                        }
+                    }
+                >
 
                     <div 
                         class='w-2 aspect-square rounded-full'
@@ -118,7 +137,7 @@
                         {/if}
                     </div>
 
-                </div>
+                </Button>
                 
             {/each}
             
@@ -127,7 +146,7 @@
         <Map game={gameState} {faction_id} {sendUpdate} />
     </div>
 
-    <AdvisorChat game_id={data.game_id} faction_id={faction_id} />
+    <AdvisorChat game_id={data.game_id} {selected_faction} faction_id={faction_id} />
 
 </div>
 

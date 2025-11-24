@@ -1,10 +1,11 @@
-export async function sendAdvisorMessage(game_id: string, faction_id: string, messages: Message[], token_stream) {
+export async function sendAdvisorMessage(game_id: string, from_fid: string, to_fid: string, message: string, token_stream) {
     return new Promise((resolve, reject) => {
 
         const params = new URLSearchParams({
-            payload: JSON.stringify(messages),
-            faction_id: faction_id,
-            game_id: game_id,
+            game_id,
+            from_fid,
+            to_fid,
+            message
         });
 
         const u = `/api/advisor-chat?${params.toString()}`;

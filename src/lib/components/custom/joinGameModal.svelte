@@ -37,7 +37,7 @@
                     if (sucsess) {
 
                         // Update supabase
-                        joinGame(game?.name, game?.game_id, f?.faction_id)
+                        await joinGame(game?.name, game?.game_id, f?.faction_id)
 
                         open = false;
                         
